@@ -1,7 +1,8 @@
 import { useContext, useState, useEffect } from "react";
-import { KeyContext } from "../../components/context/KeyProviderHandler";
+import * as OTPAuth from "otpauth";
+import { KeyContext } from "../../context/KeyProviderHandler";
 
-export default function AddkeyHandler() {
+const AddKeyFormHandler = () => {
   const [labelState, setLabelState] = useState("");
   const [issuerState, setIssuerState] = useState("");
   const [secretState, setSecretState] = useState("");
@@ -10,12 +11,37 @@ export default function AddkeyHandler() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [showFail, setShowFail] = useState(false);
 
+  const [loadReader, setLoadReader] = useState(false);
+
   const delay = 3;
 
   const resetForm = () => {
     setLabelState("");
     setIssuerState("");
     setSecretState("");
+  };
+  const handleReader = (result, error) => {
+    // Dimensions could be not found.
+    if (result) {
+      const parsedUrl = OTPAuth.URI.parse(result.text);
+      const newKey = {
+        label: parsedUrl.label,
+        issuer: parsedUrl.issuer,
+        secret: parsedUrl.secret.base32,
+        created: new Date().toISOString(),
+      };
+      addKey(newKey);
+      setLoadReader(false);
+      setShowSuccess(true);
+      setShowFail(false);
+    }
+    if (error) {
+      if (!error === "Dimensions could be not found.") {
+        setLoadReader(false);
+        setShowFail(true);
+        setShowSuccess(false);
+      }
+    }
   };
 
   const handleSubmit = () => {
@@ -50,8 +76,9 @@ export default function AddkeyHandler() {
     }
   }, [showFail]);
 
-  return [
+  return {
     handleSubmit,
+    handleReader,
     setLabelState,
     setIssuerState,
     setSecretState,
@@ -60,5 +87,9 @@ export default function AddkeyHandler() {
     issuerState,
     secretState,
     showFail,
-  ];
-}
+    loadReader,
+    setLoadReader,
+  };
+};
+
+export default AddKeyFormHandler;

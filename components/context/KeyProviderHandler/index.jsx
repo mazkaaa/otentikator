@@ -1,7 +1,9 @@
 import { createContext, useEffect, useState } from "react";
+import useDeepCompareEffect from "use-deep-compare-effect";
 
 export const KeyContext = createContext({
   keys: {},
+  loading: {},
   addKey: () => {},
   getKeys: () => {},
   debugKeys: () => {},
@@ -10,17 +12,28 @@ export const KeyContext = createContext({
 
 export function KeyProvider({ children }) {
   const [keys, setKeys] = useState({});
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (localStorage.getItem("keys")) {
       setKeys(JSON.parse(localStorage.getItem("keys")));
     }
   }, []);
 
-  useEffect(() => {
+  useDeepCompareEffect(() => {
     if (keys) {
-      localStorage.setItem("keys", JSON.stringify(keys));
+      if (!loading) {
+        localStorage.setItem("keys", JSON.stringify(keys));
+        setLoading(true);
+      }
     }
   }, [keys]);
+
+  useEffect(() => {
+    if (loading) {
+      setLoading(false);
+    }
+  }, [loading]);
 
   const addKey = (data) => {
     let keyList = JSON.parse(localStorage.getItem("keys"));
@@ -52,6 +65,8 @@ export function KeyProvider({ children }) {
         getKeys,
         addKey,
         removeKey,
+        loading,
+        keys,
       }}
     >
       {children}

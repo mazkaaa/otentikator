@@ -32,7 +32,9 @@ export default function Home() {
               );
             })}
             {getKeys().length === 0 && (
-              <h1 className="text-xl font-medium">Start adding your key!</h1>
+              <h1 className="text-xl font-medium text-center">
+                Start adding your key!
+              </h1>
             )}
           </div>
         )}

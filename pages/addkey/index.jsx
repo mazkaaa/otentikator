@@ -23,6 +23,13 @@ export default function Addkey() {
                   facingMode: "environment",
                 }}
               />
+              <button
+                className="bg-slate-600 hover:bg-slate-700 text-white font-bold py-4 px-4 w-1/2"
+                onClick={() => handler.setLoadReader(false)}
+                type="button"
+              >
+                Close Scanner
+              </button>
             </>
           ) : (
             <form className="w-full">
@@ -56,14 +63,14 @@ export default function Addkey() {
                 />
                 <div className="flex flex-row">
                   <button
-                    className="bg-slate-600 hover:bg-slate-700 text-white font-bold py-4 px-4 my-4 w-1/2 mr-2"
+                    className="bg-slate-600 hover:bg-slate-700 text-white font-bold py-4 px-4 my-4 w-1/2 mr-3"
                     onClick={() => handler.setLoadReader(true)}
                     type="button"
                   >
                     Scan QR
                   </button>
                   <button
-                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-4 my-4 w-1/2 ml-2"
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-4 my-4 w-1/2 ml-3"
                     onClick={handler.handleSubmit}
                     type="button"
                   >

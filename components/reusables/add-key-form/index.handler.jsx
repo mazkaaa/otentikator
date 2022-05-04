@@ -1,8 +1,8 @@
 import { useContext, useState, useEffect } from "react";
 import * as OTPAuth from "otpauth";
-import { KeyContext } from "../../components/context/KeyProviderHandler";
+import { KeyContext } from "../../context/KeyProviderHandler";
 
-const AddKeyHandler = () => {
+const AddKeyFormHandler = () => {
   const [labelState, setLabelState] = useState("");
   const [issuerState, setIssuerState] = useState("");
   const [secretState, setSecretState] = useState("");
@@ -92,4 +92,4 @@ const AddKeyHandler = () => {
   };
 };
 
-export default AddKeyHandler;
+export default AddKeyFormHandler;

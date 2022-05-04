@@ -2,7 +2,7 @@ import { useContext } from "react";
 import KeyCard from "../components/reusables/keyCard";
 import { KeyContext } from "../components/context/KeyProviderHandler";
 import Layout from "../components/layouts/baseLayout";
-import Container from "../components/reusables/styles/container";
+import Container from "../components/styles/container";
 
 export default function Home() {
   const { getKeys, loading } = useContext(KeyContext);

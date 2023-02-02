@@ -6,7 +6,7 @@ const KeyContext = createContext({
   data: {} as KeyDataInterface[],
   loading: {} as boolean,
   addKey: (secret: string, label: string, issuer: string, created_at: string) => { },
-  deleteKey: (created_at: string) => {}
+  deleteKey: (created_at: string) => { },
 })
 
 export const KeyProvider = ({ children }: any) => {
@@ -23,11 +23,13 @@ export const KeyProvider = ({ children }: any) => {
     if (loading) {
       localStorage.setItem("keys", JSON.stringify(data))
       setLoading(false)
+      console.log("usedeepcompareeffect")
     }
   }, [data])
 
   const addKey = (secret: string, label: string, issuer: string, created_at: string) => {
     if (!isHaveKey(secret)) {
+      console.log("havekey - ", isHaveKey(secret))
       const newKey = {
         secret,
         label,
@@ -40,7 +42,10 @@ export const KeyProvider = ({ children }: any) => {
   }
 
   const deleteKey = (created_at: string) => {
-
+    if (data.some((item) => item.created_at === created_at)) {
+      setData((old) => old.filter((item) => item.created_at !== created_at))
+      setLoading(true)
+    }
   }
 
   const isHaveKey = (secret: string) => {
@@ -53,7 +58,7 @@ export const KeyProvider = ({ children }: any) => {
         addKey,
         data,
         deleteKey,
-        loading
+        loading,
       }}
     >{children}
     </KeyContext.Provider>

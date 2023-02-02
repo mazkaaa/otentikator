@@ -5,7 +5,7 @@ const Layout = ({ children }: any) => {
   return (
     <div>
       <Navbar />
-      <div className='container mx-auto px-4 py-6'>{children}</div>
+      <div className='container mx-auto px-4 py-6 flex flex-col items-center'>{children}</div>
     </div>
   );
 }

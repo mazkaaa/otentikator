@@ -1,12 +1,26 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { toast } from "react-toastify";
 import useDeepCompareEffect from "use-deep-compare-effect";
 import { KeyDataInterface } from "../../constant/interfaces";
 
-const KeyContext = createContext({
+interface KeyContextInterface {
+  data: KeyDataInterface[];
+  loading: boolean;
+  addKey: (
+    secret: string,
+    label: string,
+    issuer: string,
+    created_at: string
+  ) => void;
+  deleteKey: (created_at: string) => void;
+  isHaveKey: (secret: string) => boolean;
+}
+const KeyContext = createContext<KeyContextInterface>({
   data: {} as KeyDataInterface[],
   loading: {} as boolean,
   addKey: (secret: string, label: string, issuer: string, created_at: string) => { },
   deleteKey: (created_at: string) => { },
+  isHaveKey: (secret: string) => false
 })
 
 export const KeyProvider = ({ children }: any) => {
@@ -28,17 +42,14 @@ export const KeyProvider = ({ children }: any) => {
   }, [data])
 
   const addKey = (secret: string, label: string, issuer: string, created_at: string) => {
-    if (!isHaveKey(secret)) {
-      console.log("havekey - ", isHaveKey(secret))
-      const newKey = {
-        secret,
-        label,
-        issuer,
-        created_at,
-      };
-      setData((old) => [...old, newKey]);
-      setLoading(true);
-    }
+    const newKey = {
+      secret,
+      label,
+      issuer,
+      created_at,
+    };
+    setData((old) => [...old, newKey]);
+    setLoading(true);
   }
 
   const deleteKey = (created_at: string) => {
@@ -59,6 +70,7 @@ export const KeyProvider = ({ children }: any) => {
         data,
         deleteKey,
         loading,
+        isHaveKey
       }}
     >{children}
     </KeyContext.Provider>

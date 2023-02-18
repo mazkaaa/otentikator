@@ -1,4 +1,3 @@
-import { QrReader } from "react-qr-reader";
 import { useKey } from "../components/context/keyProvider";
 import { useEffect } from "react";
 import KeyCard from "../components/reusables/keyCard";
@@ -7,7 +6,7 @@ export default function Home() {
   const { addKey, data } = useKey()
   
   return (
-    <div className="w-full">
+    <div className="w-full pt-12">
       {data.map((item, index) => (
         <KeyCard
           issuer={item.issuer}

@@ -14,7 +14,7 @@ const AddKeyForm = () => {
   return (
     <>
       {!loadScan ? (
-        <form className="form-control" onSubmit={handler.handleSubmit}>
+        <form className="form-control" onSubmit={handler.handleSubmit} name="addkeyform">
           <div className="my-2">
             <input
               type="text"
@@ -23,6 +23,7 @@ const AddKeyForm = () => {
               required
               value={handler.label}
               onChange={(e) => handler.setLabel(e.target.value)}
+              name="label"
             />
           </div>
           <div className="my-2">
@@ -32,6 +33,7 @@ const AddKeyForm = () => {
               className="input input-bordered w-full"
               value={handler.issuer}
               onChange={(e) => handler.setIssuer(e.target.value)}
+              name="issuer"
             />
           </div>
           <div className="my-2">
@@ -42,6 +44,7 @@ const AddKeyForm = () => {
               required
               value={handler.secret}
               onChange={(e) => handler.setSecret(e.target.value)}
+              name="secret"
             />
           </div>
           <div className="flex flex-row mt-1 justify-center">

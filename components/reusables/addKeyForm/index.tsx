@@ -23,7 +23,7 @@ const AddKeyForm = () => {
               required
               value={handler.label}
               onChange={(e) => handler.setLabel(e.target.value)}
-              name="label"
+              alt="label"
             />
           </div>
           <div className="my-2">
@@ -33,7 +33,7 @@ const AddKeyForm = () => {
               className="input input-bordered w-full"
               value={handler.issuer}
               onChange={(e) => handler.setIssuer(e.target.value)}
-              name="issuer"
+              alt="issuer"
             />
           </div>
           <div className="my-2">
@@ -44,7 +44,7 @@ const AddKeyForm = () => {
               required
               value={handler.secret}
               onChange={(e) => handler.setSecret(e.target.value)}
-              name="secret"
+              alt="secret"
             />
           </div>
           <div className="flex flex-row mt-1 justify-center">

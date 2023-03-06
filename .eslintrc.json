@@ -5,15 +5,17 @@
   },
   "extends": [
     "airbnb-base",
+    "airbnb-typescript/base",
     "next/core-web-vitals",
     "next",
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 12,
     "sourceType": "module"
   },
   "rules": {},
-  "plugins": ["prettier"]
+  "plugins": ["prettier", "@typescript-eslint"]
 }
   

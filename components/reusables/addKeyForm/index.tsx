@@ -1,68 +1,77 @@
-import React, { useState } from 'react'
-import { useKey } from '../../context/keyProvider';
-import QrScanner from '../qrScanner';
-import * as OTPAuth from "otpauth"
-import { toast } from 'react-toastify';
-import AddKeyFormHandler from './index.handler';
+import React, { useState } from "react";
+import { toast } from "react-toastify";
+import * as OTPAuth from "otpauth";
+import { useKey } from "../../context/keyProvider";
+import QrScanner from "../qrScanner";
+import AddKeyFormHandler from "./index.handler";
+import H1 from "../typography/h1";
+import Input from "../layouts/input";
 
 const AddKeyForm = () => {
-  const [loadScan, setLoadScan] = useState(false)
+  const [loadScan, setLoadScan] = useState(false);
 
-  const { addKey, isHaveKey } = useKey()
-  const handler = AddKeyFormHandler()
+  const { addKey, isHaveKey } = useKey();
+  const handler = AddKeyFormHandler();
 
   return (
     <>
       {!loadScan ? (
-        <form className="form-control" onSubmit={handler.handleSubmit} name="addkeyform">
-          <div className="my-2">
-            <input
-              type="text"
-              placeholder="Label"
-              className="input input-bordered w-full"
-              required
-              value={handler.label}
-              onChange={(e) => handler.setLabel(e.target.value)}
-              alt="label"
-            />
-          </div>
-          <div className="my-2">
-            <input
-              type="text"
-              placeholder="Issuer"
-              className="input input-bordered w-full"
-              value={handler.issuer}
-              onChange={(e) => handler.setIssuer(e.target.value)}
-              alt="issuer"
-            />
-          </div>
-          <div className="my-2">
-            <input
-              type="text"
-              placeholder="Secret"
-              className="input input-bordered w-full"
-              required
-              value={handler.secret}
-              onChange={(e) => handler.setSecret(e.target.value)}
-              alt="secret"
-            />
-          </div>
-          <div className="flex flex-row mt-1 justify-center">
-            <button className="btn mx-1" type="submit">
-              Add Key
-            </button>
-            <button
-              className="btn mx-1"
-              type="button"
-              onClick={() => setLoadScan(true)}
-            >
-              Scan QR code
-            </button>
-          </div>
-        </form>
+        <div>
+          <H1 className="flex justify-center text-center mb-4">
+            2FA Input Form
+          </H1>
+          <form
+            className="form-control"
+            onSubmit={handler.handleSubmit}
+            name="addkeyform"
+          >
+            <div className="my-2">
+              <Input
+                type="text"
+                placeholder="Label"
+                required
+                value={handler.label}
+                onChange={(e) => handler.setLabel(e.target.value)}
+                alt="label"
+              />
+            </div>
+            <div className="my-2">
+              <Input
+                type="text"
+                placeholder="Issuer"
+                value={handler.issuer}
+                onChange={(e) => handler.setIssuer(e.target.value)}
+                alt="issuer"
+              />
+            </div>
+            <div className="my-2">
+              <Input
+                type="text"
+                placeholder="Secret"
+                required
+                value={handler.secret}
+                onChange={(e) => handler.setSecret(e.target.value)}
+                alt="secret"
+              />
+            </div>
+            <div className="flex flex-row mt-1 justify-center">
+              <button className="btn mx-1" type="submit">
+                Add Key
+              </button>
+              <button
+                className="btn mx-1"
+                type="button"
+                onClick={() => setLoadScan(true)}
+              >
+                Scan QR code
+              </button>
+            </div>
+          </form>
+        </div>
       ) : (
         <div className="flex flex-col">
-          <div className='flex justify-center'>
+          <H1 className="flex justify-center text-center mb-4">2FA Scanner</H1>
+          <div className="flex justify-center">
             <QrScanner
               onResult={(result) => {
                 const parsedUrl = OTPAuth.URI.parse(result.getText());
@@ -99,6 +108,6 @@ const AddKeyForm = () => {
       )}
     </>
   );
-}
+};
 
-export default AddKeyForm
+export default AddKeyForm;

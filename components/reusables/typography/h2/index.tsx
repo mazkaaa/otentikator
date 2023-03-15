@@ -1,7 +1,13 @@
 import React from "react";
+import { TypographyInterface } from "../index.interface";
 
-const H2 = ({ children }: any) => {
-  return <h1 className="text-2xl font-bold">{children}</h1>;
+const H2 = (props: TypographyInterface) => {
+  const fontIsBold = props.fontBold ? "font-bold" : "font-extralight";
+  return (
+    <h2 className={`text-lg ${fontIsBold} ${props.className}`}>
+      {props.children}
+    </h2>
+  );
 };
 
 export default H2;

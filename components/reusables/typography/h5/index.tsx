@@ -1,14 +1,14 @@
 import React from "react";
 import { TypographyInterface } from "../index.interface";
 
-const H1 = (props: TypographyInterface) => {
+const H5 = (props: TypographyInterface) => {
   const fontIsBold = props.fontBold ? "font-bold" : "font-extralight";
 
   return (
-    <h1 className={`text-3xl ${fontIsBold} ${props.className}`}>
+    <h5 className={`text-lg ${fontIsBold} ${props.className}`}>
       {props.children}
-    </h1>
+    </h5>
   );
 };
 
-export default H1;
+export default H5;

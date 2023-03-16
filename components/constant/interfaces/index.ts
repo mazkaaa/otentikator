@@ -1,6 +1,6 @@
 export interface KeyDataInterface {
-  secret: string
-  label: string
-  issuer: string
-  created_at: string
+  secret: string;
+  label: string;
+  issuer: string;
+  created_at: string;
 }

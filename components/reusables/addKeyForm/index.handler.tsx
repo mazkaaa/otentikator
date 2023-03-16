@@ -1,21 +1,21 @@
-import { useKey } from '@/components/context/keyProvider'
-import React, { FormEvent, FormEventHandler, useState } from 'react'
-import { toast } from 'react-toastify'
+import { useKey } from "@/components/context/keyProvider";
+import React, { FormEvent, FormEventHandler, useState } from "react";
+import { toast } from "react-toastify";
 
 const AddKeyFormHandler = () => {
-  const [label, setLabel] = useState("")
-  const [issuer, setIssuer] = useState("")
-  const [secret, setSecret] = useState("")
+  const [label, setLabel] = useState("");
+  const [issuer, setIssuer] = useState("");
+  const [secret, setSecret] = useState("");
 
-  const {addKey, isHaveKey} = useKey()
+  const { addKey, isHaveKey } = useKey();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     if (isHaveKey(secret)) {
-      toast("You already have this key!", {type: "error"})
+      toast("You already have this key!", { type: "error" });
     } else {
       addKey(secret, label, issuer, new Date().toISOString());
     }
-    e.preventDefault()
+    e.preventDefault();
   };
   return {
     handleSubmit,
@@ -24,8 +24,8 @@ const AddKeyFormHandler = () => {
     issuer,
     setIssuer,
     secret,
-    setSecret
-  }
-}
+    setSecret,
+  };
+};
 
-export default AddKeyFormHandler
+export default AddKeyFormHandler;

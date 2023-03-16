@@ -3,7 +3,6 @@ import React from "react";
 import { useKey } from "../../context/keyProvider";
 
 const Navbar = () => {
-
   return (
     <div className="fixed w-full">
       <div className="navbar dark:bg-base-300">

@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 
 interface InputInterface {
   type: React.HTMLInputTypeAttribute | undefined;
@@ -7,6 +7,8 @@ interface InputInterface {
   value?: string | number | readonly string[] | undefined;
   onChange?: React.ChangeEventHandler<HTMLInputElement> | undefined;
   alt?: string | undefined;
+  dataTestid?: string | undefined;
+  name?: string | undefined;
 }
 const Input = (props: InputInterface) => {
   return (
@@ -18,8 +20,10 @@ const Input = (props: InputInterface) => {
       value={props.value}
       onChange={props.onChange}
       alt={props.alt}
+      data-testid={props.dataTestid}
+      name={props.name}
     />
   );
-}
+};
 
-export default Input
+export default Input;

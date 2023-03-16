@@ -1,17 +1,23 @@
 import React, { useState } from "react";
-import { toast } from "react-toastify";
 import * as OTPAuth from "otpauth";
+import toast from "react-hot-toast";
 import { useKey } from "../../context/keyProvider";
 import QrScanner from "../qrScanner";
-import AddKeyFormHandler from "./index.handler";
 import H1 from "../typography/h1";
 import Input from "../layouts/input";
 
-const AddKeyForm = () => {
+interface AddKeyFormInterface {
+  onSubmit?: React.FormEventHandler<HTMLFormElement> | undefined;
+  onChange?: React.ChangeEventHandler<HTMLInputElement> | undefined;
+  label?: string | undefined;
+  issuer?: string | undefined;
+  secret?: string | undefined;
+}
+
+const AddKeyForm = (props: AddKeyFormInterface) => {
   const [loadScan, setLoadScan] = useState(false);
 
   const { addKey, isHaveKey } = useKey();
-  const handler = AddKeyFormHandler();
 
   return (
     <>
@@ -22,26 +28,30 @@ const AddKeyForm = () => {
           </H1>
           <form
             className="form-control"
-            onSubmit={handler.handleSubmit}
-            name="addkeyform"
+            onSubmit={props.onSubmit}
+            data-testid="keyform"
           >
             <div className="my-2">
               <Input
                 type="text"
                 placeholder="Label"
                 required
-                value={handler.label}
-                onChange={(e) => handler.setLabel(e.target.value)}
+                value={props.label}
+                onChange={props.onChange}
                 alt="label"
+                dataTestid="labelInput"
+                name="label"
               />
             </div>
             <div className="my-2">
               <Input
                 type="text"
                 placeholder="Issuer"
-                value={handler.issuer}
-                onChange={(e) => handler.setIssuer(e.target.value)}
+                value={props.issuer}
+                onChange={props.onChange}
                 alt="issuer"
+                dataTestid="issuerInput"
+                name="issuer"
               />
             </div>
             <div className="my-2">
@@ -49,9 +59,11 @@ const AddKeyForm = () => {
                 type="text"
                 placeholder="Secret"
                 required
-                value={handler.secret}
-                onChange={(e) => handler.setSecret(e.target.value)}
+                value={props.secret}
+                onChange={props.onChange}
                 alt="secret"
+                dataTestid="secretInput"
+                name="secret"
               />
             </div>
             <div className="flex flex-row mt-1 justify-center">
@@ -76,7 +88,7 @@ const AddKeyForm = () => {
               onResult={(result) => {
                 const parsedUrl = OTPAuth.URI.parse(result.getText());
                 if (isHaveKey(parsedUrl.secret.base32)) {
-                  toast("You already have this key!", { type: "error" });
+                  toast.error("You already have this key!");
                 } else {
                   addKey(
                     parsedUrl.secret.base32,

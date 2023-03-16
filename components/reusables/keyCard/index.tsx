@@ -53,7 +53,10 @@ const KeyCard = (props: KeyDataInterface) => {
                 <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
               </svg>
             </button>
-            <button className="btn btn-square rounded-none btn-outline mx-1" onClick={() => handler.handleDelete(props.created_at)}>
+            <button
+              className="btn btn-square rounded-none btn-outline mx-1"
+              onClick={() => handler.handleDelete(props.created_at)}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import * as OTPAuth from "otpauth";
+import { toast } from "react-hot-toast";
 import { useKey } from "../../context/keyProvider";
 
 const KeyCardHandler = () => {
@@ -31,10 +32,12 @@ const KeyCardHandler = () => {
 
   const handleCopyToClipboard = (secret: string) => {
     navigator.clipboard.writeText(secret);
+    toast.success("Copied to clipboard!");
   };
 
   const handleDelete = (created_at: string) => {
     deleteKey(created_at);
+    toast.success("Deleted from storage!");
   };
   return {
     generateToken,

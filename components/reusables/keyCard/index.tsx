@@ -1,9 +1,15 @@
 import React from "react";
-import { KeyDataInterface } from "../../constant/interfaces";
-import KeyCardHandler from "./index.handler";
 
-const KeyCard = (props: KeyDataInterface) => {
-  const handler = KeyCardHandler();
+interface KeyCardInterface {
+  percentage: number;
+  generatedToken: string;
+  issuer: string;
+  label: string;
+  onClickCopy: () => void;
+  onClickDelete: () => void;
+}
+
+const KeyCard = ({generatedToken, issuer, label, onClickCopy, onClickDelete, percentage}: KeyCardInterface) => {
 
   const colorBar = {
     red: "rgb(185 28 28 / var(--tw-bg-opacity))",
@@ -11,9 +17,9 @@ const KeyCard = (props: KeyDataInterface) => {
   };
   const progressBar = {
     height: "0.25rem",
-    width: `${handler.percentage.toString()}%`,
+    width: `${percentage.toString()}%`,
     "--tw-bg-opacity": 1,
-    backgroundColor: handler.percentage <= 30 ? colorBar.red : colorBar.green,
+    backgroundColor: percentage <= 30 ? colorBar.red : colorBar.green,
     transition: "all .8s",
   };
 
@@ -23,11 +29,11 @@ const KeyCard = (props: KeyDataInterface) => {
         <div className="flex flex-row">
           <div className="flex flex-col w-full">
             <h2 className="font-bold text-3xl tracking-wide">
-              {handler.generateToken(props.secret, props.label, props.issuer)}
+              {generatedToken}
             </h2>
             <div className="flex flex-row">
               <h3 className="">
-                {props.issuer} <span>({props.label})</span>
+                {issuer} <span>({label})</span>
               </h3>
             </div>
           </div>
@@ -36,9 +42,7 @@ const KeyCard = (props: KeyDataInterface) => {
             <button
               className="btn btn-square rounded-none btn-outline mx-1"
               onClick={() =>
-                handler.handleCopyToClipboard(
-                  handler.generateToken(props.secret, props.label, props.issuer)
-                )
+                onClickCopy()
               }
             >
               <svg
@@ -55,7 +59,7 @@ const KeyCard = (props: KeyDataInterface) => {
             </button>
             <button
               className="btn btn-square rounded-none btn-outline mx-1"
-              onClick={() => handler.handleDelete(props.created_at)}
+              onClick={() => onClickDelete()}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

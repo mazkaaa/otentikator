@@ -9,8 +9,14 @@ interface KeyCardInterface {
   onClickDelete: () => void;
 }
 
-const KeyCard = ({generatedToken, issuer, label, onClickCopy, onClickDelete, percentage}: KeyCardInterface) => {
-
+const KeyCard = ({
+  generatedToken,
+  issuer,
+  label,
+  onClickCopy,
+  onClickDelete,
+  percentage,
+}: KeyCardInterface) => {
   const colorBar = {
     red: "rgb(185 28 28 / var(--tw-bg-opacity))",
     green: "rgb(34 197 94 / var(--tw-bg-opacity))",
@@ -41,9 +47,7 @@ const KeyCard = ({generatedToken, issuer, label, onClickCopy, onClickDelete, per
           <div className="flex flex-row justify-end items-center">
             <button
               className="btn btn-square rounded-none btn-outline mx-1"
-              onClick={() =>
-                onClickCopy()
-              }
+              onClick={() => onClickCopy()}
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"

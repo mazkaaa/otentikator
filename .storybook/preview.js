@@ -1,4 +1,4 @@
-import '../styles/global.css'; // replace with the name of your tailwind css file
+import '../styles/globals.css'; // replace with the name of your tailwind css file
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
   controls: {

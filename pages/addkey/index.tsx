@@ -1,5 +1,7 @@
 import React, { FormEvent, useState } from "react";
 import { toast } from "react-hot-toast";
+import * as OTPAuth from "otpauth";
+import { Result } from "react-zxing";
 import { useKey } from "../../components/context/keyProvider";
 import AddKeyForm from "../../components/reusables/addKeyForm";
 
@@ -7,6 +9,7 @@ const AddKey = () => {
   const [label, setLabel] = useState("");
   const [issuer, setIssuer] = useState("");
   const [secret, setSecret] = useState("");
+  const [loadScan, setLoadScan] = useState(false);
 
   const { addKey, isHaveKey } = useKey();
 
@@ -36,9 +39,34 @@ const AddKey = () => {
     }
   };
 
+  const handleResultScan = (result: Result) => {
+    const parsedUrl = OTPAuth.URI.parse(result.getText());
+    if (isHaveKey(parsedUrl.secret.base32)) {
+      toast.error("You already have this key!");
+    } else {
+      addKey(
+        parsedUrl.secret.base32,
+        parsedUrl.label,
+        parsedUrl.issuer,
+        new Date().toISOString()
+      );
+      toast.success("Successfully adding a key!");
+    }
+  };
+
   return (
     <div className="w-full h-full flex flex-col justify-center align-middle">
-      <AddKeyForm onSubmit={handleSubmit} onChange={handleChange} />
+      <AddKeyForm
+        onSubmit={handleSubmit}
+        onChange={handleChange}
+        issuer={issuer}
+        label={label}
+        loadScan={loadScan}
+        secret={secret}
+        onScanError={() => null}
+        onScanResult={handleResultScan}
+        setLoadScan={setLoadScan}
+      />
     </div>
   );
 };

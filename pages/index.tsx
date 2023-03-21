@@ -1,5 +1,4 @@
 import KeyCardHandler from "@/components/reusables/keyCard/index.hook";
-import H2 from "@/components/reusables/typography/h2";
 import H4 from "@/components/reusables/typography/h4";
 import { useKey } from "../components/context/keyProvider";
 import KeyCard from "../components/reusables/keyCard";
@@ -29,6 +28,7 @@ export default function Home() {
               onClickCopy={() => handleCopyToClipboard(item.secret)}
               onClickDelete={() => handleDelete(item.created_at)}
               percentage={percentage}
+              key={item.created_at}
             />
           ))}
         </>

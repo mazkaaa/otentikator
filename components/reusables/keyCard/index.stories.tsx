@@ -1,4 +1,3 @@
-
 import React from "react";
 
 import { ComponentMeta, ComponentStory } from "@storybook/react";
@@ -14,7 +13,7 @@ export default {
 } as ComponentMeta<typeof KeyCard>;
 
 const Template: ComponentStory<typeof KeyCard> = (args) => (
-  <KeyCard {...args}/>
+  <KeyCard {...args} />
 );
 
 export const Default = Template.bind({});
@@ -24,5 +23,5 @@ Default.args = {
   label: "Label",
   onClickCopy: () => null,
   onClickDelete: () => null,
-  percentage: 90
-}
+  percentage: 100,
+};

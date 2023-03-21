@@ -1,24 +1,32 @@
-import React, { useState } from "react";
-import * as OTPAuth from "otpauth";
-import toast from "react-hot-toast";
-import { useKey } from "../../context/keyProvider";
+import React from "react";
+import { Result } from "react-zxing";
 import QrScanner from "../qrScanner";
 import H1 from "../typography/h1";
 import Input from "../layouts/input";
 
 interface AddKeyFormInterface {
-  onSubmit?: React.FormEventHandler<HTMLFormElement> | undefined;
-  onChange?: React.ChangeEventHandler<HTMLInputElement> | undefined;
-  label?: string | undefined;
-  issuer?: string | undefined;
-  secret?: string | undefined;
+  onSubmit: React.FormEventHandler<HTMLFormElement>;
+  onChange: React.ChangeEventHandler<HTMLInputElement>;
+  label: string;
+  issuer: string;
+  secret: string;
+  loadScan: boolean;
+  setLoadScan: React.Dispatch<React.SetStateAction<boolean>>;
+  onScanResult: (result: Result) => void;
+  onScanError: (error: Error) => void;
 }
 
-const AddKeyForm = (props: AddKeyFormInterface) => {
-  const [loadScan, setLoadScan] = useState(false);
-
-  const { addKey, isHaveKey } = useKey();
-
+const AddKeyForm = ({
+  issuer,
+  label,
+  onChange,
+  onSubmit,
+  secret,
+  loadScan,
+  setLoadScan,
+  onScanResult,
+  onScanError,
+}: AddKeyFormInterface) => {
   return (
     <>
       {!loadScan ? (
@@ -28,7 +36,7 @@ const AddKeyForm = (props: AddKeyFormInterface) => {
           </H1>
           <form
             className="form-control"
-            onSubmit={props.onSubmit}
+            onSubmit={onSubmit}
             data-testid="keyform"
           >
             <div className="my-2">
@@ -36,8 +44,8 @@ const AddKeyForm = (props: AddKeyFormInterface) => {
                 type="text"
                 placeholder="Label"
                 required
-                value={props.label}
-                onChange={props.onChange}
+                value={label}
+                onChange={onChange}
                 alt="label"
                 dataTestid="labelInput"
                 name="label"
@@ -47,8 +55,8 @@ const AddKeyForm = (props: AddKeyFormInterface) => {
               <Input
                 type="text"
                 placeholder="Issuer"
-                value={props.issuer}
-                onChange={props.onChange}
+                value={issuer}
+                onChange={onChange}
                 alt="issuer"
                 dataTestid="issuerInput"
                 name="issuer"
@@ -59,8 +67,8 @@ const AddKeyForm = (props: AddKeyFormInterface) => {
                 type="text"
                 placeholder="Secret"
                 required
-                value={props.secret}
-                onChange={props.onChange}
+                value={secret}
+                onChange={onChange}
                 alt="secret"
                 dataTestid="secretInput"
                 name="secret"
@@ -86,17 +94,7 @@ const AddKeyForm = (props: AddKeyFormInterface) => {
           <div className="flex justify-center">
             <QrScanner
               onResult={(result) => {
-                const parsedUrl = OTPAuth.URI.parse(result.getText());
-                if (isHaveKey(parsedUrl.secret.base32)) {
-                  toast.error("You already have this key!");
-                } else {
-                  addKey(
-                    parsedUrl.secret.base32,
-                    parsedUrl.label,
-                    parsedUrl.issuer,
-                    new Date().toISOString()
-                  );
-                }
+                onScanResult(result);
                 setLoadScan(false);
               }}
               constraints={{
@@ -105,7 +103,7 @@ const AddKeyForm = (props: AddKeyFormInterface) => {
                 },
                 audio: false,
               }}
-              onError={(error) => null}
+              onError={(error) => onScanError(error)}
               className="pb-6"
             />
           </div>

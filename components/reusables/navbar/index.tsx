@@ -1,11 +1,10 @@
 import Link from "next/link";
 import React from "react";
-import { useKey } from "../../context/keyProvider";
 
 const Navbar = () => {
   return (
     <div className="fixed w-full">
-      <div className="navbar dark:bg-base-300">
+      <div className="navbar dark:bg-base-300 bg-base-200">
         <div className="navbar-start">
           <div className="dropdown">
             <label tabIndex={0} className="btn btn-ghost btn-circle">

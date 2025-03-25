@@ -3,7 +3,6 @@ import { IOTPFormat } from "@/types";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import * as OTPAuth from "otpauth";
 import { Check, Copy } from "lucide-react";
-import { Progress } from "../ui";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -53,14 +52,13 @@ export const KeyCard = (props: PROPS) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      const nowInSecond = Math.floor(new Date().getTime() / 1000);
-      const newToken = 30 - (nowInSecond % 30) - 1;
-
-      setPercentage((newToken * 100) / 30);
+      const seconds =
+        getToken.period - (Math.floor(Date.now() / 1000) % getToken.period);
+      setPercentage((seconds / getToken.period) * 100);
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [getToken.period]);
 
   return (
     <div

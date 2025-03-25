@@ -5,11 +5,11 @@ import {
   ScanQRModal,
 } from "@/components/container";
 import { useSettings } from "@/components/context";
-import { Modal, ModalConfirmation } from "@/components/reusables";
+import { ModalConfirmation } from "@/components/reusables";
 import { Button } from "@/components/ui";
 import { IOTPFormat } from "@/types";
 import { IKeyCard } from "@/types/key-card";
-import { ScanQrCode, Trash, Upload, X, XCircle } from "lucide-react";
+import { ScanQrCode, Trash, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 export default function AppDashboard() {
@@ -25,8 +25,6 @@ export default function AppDashboard() {
 
   const closeManualFormModal = useCallback(() => {
     setManualFormModal(false);
-
-    // TODO: Reset form
   }, []);
 
   const handleAddKey = useCallback(
@@ -40,6 +38,20 @@ export default function AppDashboard() {
       localStorage.setItem("otp-data", JSON.stringify([...data, newData]));
     },
     [data],
+  );
+
+  const handleSubmitManualForm = useCallback(
+    (payload: { label: string; issuer: string; secret: string }) => {
+      handleAddKey({
+        label: payload.label,
+        issuer: payload.issuer,
+        secret: payload.secret,
+        algorithm: "SHA1",
+        digits: 6,
+        period: 30,
+      });
+    },
+    [handleAddKey],
   );
 
   const handleCancelSelecting = useCallback(() => {
@@ -123,6 +135,7 @@ export default function AppDashboard() {
       <ManualFormModal
         isOpen={manualFormModal}
         onModalClose={closeManualFormModal}
+        submitForm={handleSubmitManualForm}
       />
       <ScanQRModal
         onSuccessScan={handleAddKey}

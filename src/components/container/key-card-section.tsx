@@ -1,8 +1,6 @@
-import { IOTPFormat } from "@/types";
 import React, { useCallback, useMemo } from "react";
 import { KeyCard } from "../reusables";
 import { useSettings } from "../context";
-import { cn } from "@/lib/utils";
 import { Checkbox } from "../ui/checkbox";
 import { IKeyCard } from "@/types/key-card";
 import { CheckedState } from "@radix-ui/react-checkbox";
@@ -25,6 +23,23 @@ export const KeyCardSection = (props: PROPS) => {
     [selectKey, unselectKey],
   );
 
+  const defineCheckbox = useCallback(
+    (otp: IKeyCard) => {
+      if (isSelecting) {
+        return (
+          <Checkbox
+            checked={selectedKeys.some((item) => item.id === otp.id)}
+            onCheckedChange={(checked) => {
+              handleCheck(checked, otp);
+            }}
+            size="extraLarge"
+          />
+        );
+      }
+    },
+    [handleCheck, isSelecting, selectedKeys],
+  );
+
   const defineGridContent = useMemo(() => {
     return (
       <>
@@ -34,20 +49,12 @@ export const KeyCardSection = (props: PROPS) => {
             className="flex flex-row items-center w-full space-x-6"
           >
             <KeyCard data={otp} />
-            {isSelecting && (
-              <Checkbox
-                checked={selectedKeys.some((item) => item.id === otp.id)}
-                onCheckedChange={(checked) => {
-                  handleCheck(checked, otp);
-                }}
-                size="extraLarge"
-              />
-            )}
+            {defineCheckbox(otp)}
           </div>
         ))}
       </>
     );
-  }, [data, handleCheck, isSelecting, selectedKeys]);
+  }, [data, defineCheckbox]);
 
   return (
     <section className="space-y-4 transition-all">{defineGridContent}</section>

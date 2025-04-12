@@ -1,21 +1,19 @@
 "use client";
-import React from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 import { Modal } from "../reusables";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Button,
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
   Input,
 } from "../ui";
-import { toast } from "sonner";
 
 interface PROPS {
   isOpen: boolean;
@@ -75,7 +73,6 @@ export const ManualFormModal = (props: PROPS) => {
                 <FormControl>
                   <Input placeholder="Example: John Doe" {...field} />
                 </FormControl>
-                <FormDescription>The label for the OTP key</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -90,7 +87,6 @@ export const ManualFormModal = (props: PROPS) => {
                 <FormControl>
                   <Input placeholder="Example: Google" {...field} />
                 </FormControl>
-                <FormDescription>The issuer for the OTP key</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -105,7 +101,6 @@ export const ManualFormModal = (props: PROPS) => {
                 <FormControl>
                   <Input placeholder="Example: 4CUAUJAEFJ72wXL" {...field} />
                 </FormControl>
-                <FormDescription>The secret for the OTP key</FormDescription>
                 <FormMessage />
               </FormItem>
             )}

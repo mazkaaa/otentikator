@@ -4,6 +4,7 @@ import {
   ManualFormModal,
   ScanQRModal,
 } from "@/components/container";
+import MasterPasswordModal from "@/components/container/master-password-modal";
 import { useSettings } from "@/components/context";
 import { ModalConfirmation } from "@/components/reusables";
 import { Button } from "@/components/ui";
@@ -11,10 +12,14 @@ import { IOTPFormat } from "@/types";
 import { IKeyCard } from "@/types/key-card";
 import { ScanQrCode, Trash, Upload, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "sonner";
 
 export default function AppDashboard() {
   const [scanQrModal, setScanQrModal] = useState(false);
   const [manualFormModal, setManualFormModal] = useState(false);
+  const [passwordModal, setPasswordModal] = useState(true);
+
+  const [password, setPassword] = useState("");
 
   const [deleteConfirmationDelete, setDeleteConfirmationDelete] =
     useState(false);
@@ -25,6 +30,16 @@ export default function AppDashboard() {
 
   const closeManualFormModal = useCallback(() => {
     setManualFormModal(false);
+  }, []);
+
+  const closeMasterPasswordModal = useCallback(() => {
+    setPasswordModal(false);
+  }, []);
+
+  const handleSubmitPassword = useCallback((encryptedPassword: string) => {
+    setPasswordModal(false);
+    toast.success("Successfully logged in");
+    setPassword(encryptedPassword);
   }, []);
 
   const handleAddKey = useCallback(
@@ -62,7 +77,10 @@ export default function AppDashboard() {
     const newData = data.filter((item) => !selectedKeys.includes(item));
     setData(newData);
     localStorage.setItem("otp-data", JSON.stringify(newData));
-  }, [data, selectedKeys]);
+    setDeleteConfirmationDelete(false);
+    toggleSelecting(false);
+    toast.success("Key deleted successfully");
+  }, [data, selectedKeys, toggleSelecting]);
 
   const defineMainButtonSection = useMemo(() => {
     if (isSelecting) {
@@ -155,6 +173,11 @@ export default function AppDashboard() {
           text: "Cancel",
           onClick: () => setDeleteConfirmationDelete(false),
         }}
+      />
+      <MasterPasswordModal
+        isOpen={passwordModal}
+        onClose={closeMasterPasswordModal}
+        onSubmit={handleSubmitPassword}
       />
     </div>
   );

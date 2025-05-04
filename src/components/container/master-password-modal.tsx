@@ -17,7 +17,7 @@ import { Input } from "../ui/input";
 interface PROPS {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (encryptedPassword: string) => void;
+  onSubmit: (encryptedPassword: string) => Promise<void>;
 }
 const formSchema = z.object({
   password: z.string().min(1, {
@@ -48,9 +48,10 @@ const MasterPasswordModal = (props: PROPS) => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit((data) => {
-            onClose();
-            onSubmit(hashData(data.password));
-            form.reset();
+            onSubmit(hashData(data.password)).then(() => {
+              form.reset();
+              onClose();
+            });
           })}
           className="space-y-6"
         >

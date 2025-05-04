@@ -1,6 +1,6 @@
 "use client";
 import { IOTPFormat } from "@/types";
-import { IKeyCard } from "@/types/key-card";
+import { IKeyCard, IKeyCardEncrypted } from "@/types/key-card";
 import { decrypt, encrypt } from "@/utils/security";
 import { ScanQrCode, Trash, Upload, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
@@ -39,6 +39,7 @@ const DashboardPage = () => {
       } catch (error) {
         const errorResponse = error as Error;
         toast.error("Failed to save data: " + errorResponse.message);
+        console.error(errorResponse);
         return false;
       }
     },
@@ -48,30 +49,31 @@ const DashboardPage = () => {
   /**
    * Handles master password submission
    */
-  const handleSubmitPassword = useCallback(
-    (encryptedPassword: string) => {
+  const handleSubmitPassword = useCallback((encryptedPassword: string) => {
+    return new Promise<void>(async (resolve, reject) => {
       try {
         const dataStorage = localStorage.getItem("otp-data");
         if (dataStorage) {
-          const parsedData = JSON.parse(dataStorage);
-          const decryptedData = decrypt(
-            password,
-            parsedData.cipherText,
+          const parsedData: IKeyCardEncrypted = JSON.parse(dataStorage);
+          const decryptedData = await decrypt(
+            parsedData.encrypted,
+            encryptedPassword,
             parsedData.iv,
-            parsedData.tag,
+            parsedData.authTag,
           );
           setData(JSON.parse(decryptedData));
         }
         setPasswordModal(false);
         setPassword(encryptedPassword);
         toast.success("Successfully logged in");
+        resolve();
       } catch (error) {
         const errorResponse = error as Error;
         toast.error("Failed to decrypt data: " + errorResponse.message);
+        reject(errorResponse);
       }
-    },
-    [password],
-  );
+    });
+  }, []);
 
   /**
    * Adds a new OTP key

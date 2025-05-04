@@ -1,19 +1,18 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { z } from "zod";
 import { Modal } from "../reusables";
+import { Button } from "../ui/button";
 import {
-  Button,
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
-  Input,
-} from "../ui";
+} from "../ui/form";
+import { Input } from "../ui/input";
 
 interface PROPS {
   isOpen: boolean;
@@ -32,7 +31,7 @@ const formSchema = z.object({
   }),
 });
 
-export const ManualFormModal = (props: PROPS) => {
+const ManualFormModal = (props: PROPS) => {
   const { isOpen, onModalClose } = props;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -53,13 +52,13 @@ export const ManualFormModal = (props: PROPS) => {
           onModalClose();
         }
       }}
+      description="Fill in the form to add a new OTP"
     >
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit((data) => {
             props.submitForm(data);
             onModalClose();
-            toast.success("Key added successfully");
             form.reset();
           })}
           className="space-y-6"
@@ -119,3 +118,5 @@ export const ManualFormModal = (props: PROPS) => {
     </Modal>
   );
 };
+
+export default ManualFormModal;

@@ -6,7 +6,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../ui";
+} from "../ui/dialog";
 
 interface PROPS {
   isOpen?: boolean;

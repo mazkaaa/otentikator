@@ -1,14 +1,14 @@
-import React, { useCallback, useMemo } from "react";
-import { KeyCard } from "../reusables";
-import { useSettings } from "../context";
-import { Checkbox } from "../ui/checkbox";
 import { IKeyCard } from "@/types/key-card";
 import { CheckedState } from "@radix-ui/react-checkbox";
+import { useCallback, useMemo } from "react";
+import { useSettings } from "../context";
+import { KeyCard } from "../reusables";
+import { Checkbox } from "../ui/checkbox";
 
 interface PROPS {
   data: IKeyCard[];
 }
-export const KeyCardSection = (props: PROPS) => {
+const KeyCardSection = (props: PROPS) => {
   const { data } = props;
   const { isSelecting, selectedKeys, selectKey, unselectKey } = useSettings();
 
@@ -60,3 +60,5 @@ export const KeyCardSection = (props: PROPS) => {
     <section className="space-y-4 transition-all">{defineGridContent}</section>
   );
 };
+
+export default KeyCardSection;

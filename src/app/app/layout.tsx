@@ -1,4 +1,4 @@
-import { SettingMenu } from "@/components/container";
+import SettingMenu from "@/components/container/setting-menu";
 import { SettingProvider } from "@/components/context";
 import Link from "next/link";
 

@@ -1,9 +1,9 @@
-import React, { useCallback } from "react";
-import { Modal } from "../reusables";
-import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
-import { Button } from "../ui";
 import { IOTPFormat } from "@/types";
+import { IDetectedBarcode, Scanner } from "@yudiel/react-qr-scanner";
+import { useCallback } from "react";
 import { toast } from "sonner";
+import { Modal } from "../reusables";
+import { Button } from "../ui/button";
 
 interface PROPS {
   isOpen?: boolean;
@@ -37,7 +37,6 @@ export const ScanQRModal = (props: PROPS) => {
           };
           if (onSuccessScan) {
             onSuccessScan(otpFormat, data);
-            toast.success("OTP QR Code Scanned");
             if (onClose) {
               onClose();
             }

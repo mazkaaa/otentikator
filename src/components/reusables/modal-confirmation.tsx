@@ -1,6 +1,6 @@
-import React, { useMemo } from "react";
+import { useMemo } from "react";
+import { Button } from "../ui/button";
 import { Modal } from "./modal";
-import { Button } from "../ui";
 
 interface PROPS {
   isOpen: boolean;

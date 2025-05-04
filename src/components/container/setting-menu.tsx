@@ -1,5 +1,6 @@
 "use client";
-import React from "react";
+import { Download, MousePointer2, Settings } from "lucide-react";
+import { useSettings } from "../context";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -7,11 +8,9 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "../ui";
-import { Download, MousePointer2, Settings, Upload } from "lucide-react";
-import { useSettings } from "../context";
+} from "../ui/dropdown-menu";
 
-export const SettingMenu = () => {
+const SettingMenu = () => {
   const { toggleSelecting } = useSettings();
   return (
     <DropdownMenu>
@@ -37,3 +36,5 @@ export const SettingMenu = () => {
     </DropdownMenu>
   );
 };
+
+export default SettingMenu;

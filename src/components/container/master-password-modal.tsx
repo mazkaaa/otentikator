@@ -73,9 +73,6 @@ const MasterPasswordModal = (props: PROPS) => {
           />
 
           <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-            <Button type="button" variant="secondary" onClick={onClose}>
-              Cancel
-            </Button>
             <Button type="submit" variant="default">
               Submit
             </Button>

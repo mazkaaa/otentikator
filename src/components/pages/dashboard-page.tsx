@@ -1,7 +1,7 @@
 "use client";
 import { IOTPFormat } from "@/types";
-import { IKeyCard, IKeyCardEncrypted } from "@/types/key-card";
-import { decrypt, encrypt } from "@/utils/security";
+import { IKeyCard } from "@/types/key-card";
+import { loadKeyFromStorage, saveKeyToStorage } from "@/utils/storage";
 import { ScanQrCode, Trash, Upload, X } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -30,18 +30,16 @@ const DashboardPage = () => {
   /**
    * Saves encrypted data to local storage
    */
-  const saveDataToStorage = useCallback(
-    async (newData: IKeyCard[]) => {
-      try {
-        const encryptedData = await encrypt(password, JSON.stringify(newData));
-        localStorage.setItem("otp-data", JSON.stringify(encryptedData));
-        return true;
-      } catch (error) {
-        const errorResponse = error as Error;
-        toast.error("Failed to save data: " + errorResponse.message);
-        console.error(errorResponse);
-        return false;
-      }
+  const handleSaveDataToStorage = useCallback(
+    (newData: IKeyCard[]) => {
+      return new Promise<void>(async (resolve, reject) => {
+        try {
+          await saveKeyToStorage(newData, password);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
     },
     [password],
   );
@@ -52,17 +50,8 @@ const DashboardPage = () => {
   const handleSubmitPassword = useCallback((encryptedPassword: string) => {
     return new Promise<void>(async (resolve, reject) => {
       try {
-        const dataStorage = localStorage.getItem("otp-data");
-        if (dataStorage) {
-          const parsedData: IKeyCardEncrypted = JSON.parse(dataStorage);
-          const decryptedData = await decrypt(
-            parsedData.encrypted,
-            encryptedPassword,
-            parsedData.iv,
-            parsedData.authTag,
-          );
-          setData(JSON.parse(decryptedData));
-        }
+        const loadedData = await loadKeyFromStorage(encryptedPassword);
+        setData(loadedData);
         setPasswordModal(false);
         setPassword(encryptedPassword);
         toast.success("Successfully logged in");
@@ -88,16 +77,16 @@ const DashboardPage = () => {
         };
         const updatedData = [...data, newData];
 
-        if (await saveDataToStorage(updatedData)) {
-          setData(updatedData);
-          toast.success("Key added successfully");
-        }
+        await handleSaveDataToStorage(updatedData);
+        setData(updatedData);
+        toast.success("Key added successfully");
       } catch (error) {
-        toast.error("Failed to add key");
-        console.error(error);
+        const errorResponse = error as Error;
+        toast.error("Failed to add key: " + errorResponse.message);
+        console.error("Error adding key:", errorResponse);
       }
     },
-    [data, saveDataToStorage],
+    [data, handleSaveDataToStorage],
   );
 
   /**
@@ -119,16 +108,22 @@ const DashboardPage = () => {
   );
 
   /**
-   * Deletes selected keys
+   * Delete selected keys
    */
-  const handleDeleteSelectedKeys = useCallback(() => {
-    const newData = data.filter((item) => !selectedKeys.includes(item));
-    setData(newData);
-    saveDataToStorage(newData);
-    setDeleteConfirmation(false);
-    toggleSelecting(false);
-    toast.success("Selected keys deleted successfully");
-  }, [data, saveDataToStorage, selectedKeys, toggleSelecting]);
+  const handleDeleteSelectedKeys = useCallback(async () => {
+    try {
+      const newData = data.filter((item) => !selectedKeys.includes(item));
+      await handleSaveDataToStorage(newData);
+      setData(newData);
+      setDeleteConfirmation(false);
+      toggleSelecting(false);
+      toast.success("Selected keys deleted successfully");
+    } catch (error) {
+      const errorResponse = error as Error;
+      toast.error("Failed to delete keys: " + errorResponse.message);
+      console.error("Error deleting keys:", errorResponse);
+    }
+  }, [data, handleSaveDataToStorage, selectedKeys, toggleSelecting]);
 
   /**
    * UI for action buttons based on selection mode

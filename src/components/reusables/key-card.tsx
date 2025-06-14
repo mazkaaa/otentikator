@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 import type { IOTPFormat } from "@/types/otp-format";
 import { Check, Copy } from "lucide-react";
 import * as OTPAuth from "otpauth";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 interface PROPS {

@@ -1,49 +1,66 @@
-import { useMemo } from "react";
-import { Button } from "../ui/button";
-import { Modal } from "./modal";
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle,
+} from "../ui/alert-dialog";
 
-interface PROPS {
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-  title: string;
-  description: string;
-  confirmButton: {
-    text: string;
-    onClick: () => void;
-  };
-  cancelButton: {
-    text: string;
-    onClick: () => void;
-  };
+interface IModalConfirmationProps {
+	isOpen: boolean;
+	onOpenChange?: (open: boolean) => void;
+	title: string;
+	description: string;
+	confirmButton: {
+		text: string;
+		onClick?: () => void;
+	};
+	cancelButton: {
+		text: string;
+		onClick?: () => void;
+	};
 }
-export const ModalConfirmation = (props: PROPS) => {
-  const { isOpen, onOpenChange } = props;
-
-  const defineFooter = useMemo(() => {
-    return (
-      <>
-        <Button onClick={props.cancelButton.onClick} variant="secondary">
-          {props.cancelButton.text}
-        </Button>
-        <Button onClick={props.confirmButton.onClick} variant="default">
-          {props.confirmButton.text}
-        </Button>
-      </>
-    );
-  }, [
-    props.cancelButton.onClick,
-    props.cancelButton.text,
-    props.confirmButton.onClick,
-    props.confirmButton.text,
-  ]);
-
-  return (
-    <Modal
-      isOpen={isOpen}
-      onOpenChange={onOpenChange}
-      title={props.title}
-      description={props.description}
-      footers={defineFooter}
-    />
-  );
+const ModalConfirmation = ({
+	cancelButton,
+	confirmButton,
+	description,
+	isOpen,
+	onOpenChange,
+	title,
+}: IModalConfirmationProps) => {
+	return (
+		<AlertDialog open={isOpen} onOpenChange={onOpenChange}>
+			<AlertDialogContent>
+				<AlertDialogHeader>
+					<AlertDialogTitle>{title}</AlertDialogTitle>
+					<AlertDialogDescription>{description}</AlertDialogDescription>
+				</AlertDialogHeader>
+				<AlertDialogFooter>
+					<AlertDialogCancel
+						onClick={() => {
+							if (cancelButton.onClick) {
+								cancelButton.onClick();
+							}
+						}}
+					>
+						{cancelButton.text}
+					</AlertDialogCancel>
+					<AlertDialogAction
+						onClick={() => {
+							if (confirmButton.onClick) {
+								confirmButton.onClick();
+							}
+						}}
+					>
+						{confirmButton.text}
+					</AlertDialogAction>
+				</AlertDialogFooter>
+			</AlertDialogContent>
+		</AlertDialog>
+	);
 };
+
+export default ModalConfirmation;

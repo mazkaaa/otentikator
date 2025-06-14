@@ -1,4 +1,4 @@
-import { IKeyCard, IKeyCardEncrypted } from "@/types/key-card";
+import type { IKeyCard, IKeyCardEncrypted } from "@/types/key-card";
 import { decrypt, encrypt } from "./security";
 
 /**
@@ -9,15 +9,14 @@ import { decrypt, encrypt } from "./security";
  * @throws - If encryption fails
  */
 const saveKeyToStorage = (keys: IKeyCard[], password: string) => {
-  return new Promise<void>(async (resolve, reject) => {
-    try {
-      const encryptedData = await encrypt(JSON.stringify(keys), password);
-      localStorage.setItem("otp-data", JSON.stringify(encryptedData));
-      resolve();
-    } catch (error) {
-      reject(error);
-    }
-  });
+	return new Promise<void>((resolve, reject) => {
+		encrypt(JSON.stringify(keys), password)
+			.then((encryptedData) => {
+				localStorage.setItem("otp-data", JSON.stringify(encryptedData));
+				resolve();
+			})
+			.catch(reject);
+	});
 };
 
 /**
@@ -27,25 +26,23 @@ const saveKeyToStorage = (keys: IKeyCard[], password: string) => {
  * @throws - If decryption fails
  */
 const loadKeyFromStorage = (password: string) => {
-  return new Promise<IKeyCard[]>(async (resolve, reject) => {
-    try {
-      const dataStorage = localStorage.getItem("otp-data");
-      if (dataStorage) {
-        const parsedData: IKeyCardEncrypted = JSON.parse(dataStorage);
-        const decryptedData = await decrypt(
-          parsedData.encrypted,
-          password,
-          parsedData.iv,
-          parsedData.authTag,
-        );
-        resolve(JSON.parse(decryptedData));
-      } else {
-        resolve([]);
-      }
-    } catch (error) {
-      reject(error);
-    }
-  });
+	return new Promise<IKeyCard[]>((resolve, reject) => {
+		try {
+			const dataStorage = localStorage.getItem("otp-data");
+			if (dataStorage) {
+				const parsedData: IKeyCardEncrypted = JSON.parse(dataStorage);
+				decrypt(parsedData.encrypted, password, parsedData.iv)
+					.then((decryptedData) => {
+						resolve(JSON.parse(decryptedData));
+					})
+					.catch(reject);
+			} else {
+				resolve([]);
+			}
+		} catch (error) {
+			reject(error);
+		}
+	});
 };
 
 export { loadKeyFromStorage, saveKeyToStorage };

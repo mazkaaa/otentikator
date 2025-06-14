@@ -1,95 +1,167 @@
-import * as crypto from "crypto";
+/**
+ * Utility functions for cryptographic operations using the Web Crypto API
+ * Refactored from Node.js crypto for browser compatibility
+ */
+
+/**
+ * Convert a string to a buffer
+ */
+const str2buf = (str: string): ArrayBuffer => {
+	return new TextEncoder().encode(str);
+};
+
+/**
+ * Convert a buffer to a string
+ */
+const buf2str = (buffer: ArrayBuffer): string => {
+	return new TextDecoder().decode(buffer);
+};
+
+/**
+ * Convert ArrayBuffer to base64 string
+ */
+const arrayBufferToBase64 = (buffer: ArrayBuffer): string => {
+	const bytes = new Uint8Array(buffer);
+	let binary = "";
+	for (let i = 0; i < bytes.byteLength; i++) {
+		binary += String.fromCharCode(bytes[i]);
+	}
+	return btoa(binary);
+};
+
+/**
+ * Convert base64 string to ArrayBuffer
+ */
+const base64ToArrayBuffer = (base64: string): ArrayBuffer => {
+	const binaryString = atob(base64);
+	const bytes = new Uint8Array(binaryString.length);
+	for (let i = 0; i < binaryString.length; i++) {
+		bytes[i] = binaryString.charCodeAt(i);
+	}
+	return bytes.buffer;
+};
 
 /**
  * Utility function to hash password or any string data
  * @param data - The string data to hash
  * @returns - The hashed data in base64 format
- * @description - This function uses the SHA-256 hashing algorithm to hash the input data. It is useful for securely storing passwords or verifying data integrity.
+ * @description - Uses SHA-256 to hash input data
  */
-const hashData = (data: string): string => {
-  const hash = crypto.createHash("sha256");
-  hash.update(data);
-  const digest = hash.digest("base64");
-  return digest;
+const hashData = async (data: string): Promise<string> => {
+	const msgBuffer = str2buf(data);
+	const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
+	return arrayBufferToBase64(hashBuffer);
 };
 
 /**
- * Derives a 32-byte encryption key from a password
+ * Derives a cryptographic key from a password
  * @param password - The password to derive the key from
- * @returns - A 32-byte Buffer suitable for AES-256-GCM
+ * @returns - A CryptoKey suitable for AES-GCM
  */
-const deriveKey = (password: string): Buffer => {
-  // Use PBKDF2 for better key derivation (recommended)
-  // For even better security, you should store and use a salt
-  const salt = crypto.createHash("sha256").update("static-salt").digest();
-  return crypto.pbkdf2Sync(password, salt, 10000, 32, "sha256");
+const deriveKey = async (password: string): Promise<CryptoKey> => {
+	// First, create a key from the password
+	const passwordBuffer = str2buf(password);
+	const baseKey = await crypto.subtle.importKey(
+		"raw",
+		passwordBuffer,
+		{ name: "PBKDF2" },
+		false,
+		["deriveKey"],
+	);
+
+	// Use PBKDF2 to derive an AES-GCM key
+	const salt = str2buf("static-salt"); // Consider using a more secure salt strategy
+	return await crypto.subtle.deriveKey(
+		{
+			name: "PBKDF2",
+			salt,
+			iterations: 100000,
+			hash: "SHA-256",
+		},
+		baseKey,
+		{ name: "AES-GCM", length: 256 },
+		false,
+		["encrypt", "decrypt"],
+	);
 };
 
 /**
- * Encrypts data using AES-256-GCM
- * @param data - The data to encrypt (string or Buffer)
+ * Encrypts data using AES-GCM
+ * @param data - The data to encrypt
  * @param password - The password to use for encryption
- * @returns - An object containing the encrypted data, iv, and auth tag in base64 format
+ * @returns - Object containing encrypted data, iv, and auth tag in base64
  */
-const encrypt = (data: string | Buffer, password: string) => {
-  return new Promise<{
-    encrypted: string;
-    iv: string;
-    authTag: string;
-  }>((resolve, reject) => {
-    try {
-      const key = deriveKey(password);
-      const iv = crypto.randomBytes(12); // GCM recommends 12-byte IV
-      const cipher = crypto.createCipheriv("aes-256-gcm", key, iv);
+const encrypt = async (
+	data: string,
+	password: string,
+): Promise<{ encrypted: string; iv: string }> => {
+	try {
+		// Derive key from password
+		const key = await deriveKey(password);
 
-      let encrypted = cipher.update(data);
-      encrypted = Buffer.concat([encrypted, cipher.final()]);
-      const authTag = cipher.getAuthTag();
+		// Generate a random IV
+		const iv = crypto.getRandomValues(new Uint8Array(12));
 
-      resolve({
-        encrypted: encrypted.toString("base64"),
-        iv: iv.toString("base64"),
-        authTag: authTag.toString("base64"),
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+		// Encrypt the data
+		const dataBuffer = str2buf(data);
+		const encryptedBuffer = await crypto.subtle.encrypt(
+			{
+				name: "AES-GCM",
+				iv: iv,
+			},
+			key,
+			dataBuffer,
+		);
+
+		// Return the encrypted data and iv in base64 format
+		return {
+			encrypted: arrayBufferToBase64(encryptedBuffer),
+			iv: arrayBufferToBase64(iv),
+		};
+	} catch (error) {
+		console.error("Encryption error:", error);
+		throw error;
+	}
 };
 
 /**
- * Decrypts data encrypted with AES-256-GCM
+ * Decrypts data encrypted with AES-GCM
  * @param encrypted - The encrypted data in base64 format
  * @param password - The password used for encryption
  * @param iv - The initialization vector in base64 format
- * @param authTag - The authentication tag in base64 format
  * @returns - The decrypted data as a string
- * @throws - If authentication fails (invalid password or tampered data)
  */
-const decrypt = (
-  encrypted: string,
-  password: string,
-  iv: string,
-  authTag: string,
-) => {
-  return new Promise<string>((resolve, reject) => {
-    try {
-      const key = deriveKey(password);
-      const ivBuffer = Buffer.from(iv, "base64");
-      const encryptedBuffer = Buffer.from(encrypted, "base64");
-      const authTagBuffer = Buffer.from(authTag, "base64");
+const decrypt = async (
+	encrypted: string,
+	password: string,
+	iv: string,
+): Promise<string> => {
+	try {
+		// Derive key from password
+		const key = await deriveKey(password);
 
-      const decipher = crypto.createDecipheriv("aes-256-gcm", key, ivBuffer);
-      decipher.setAuthTag(authTagBuffer);
+		// Convert base64 strings to buffers
+		const encryptedBuffer = base64ToArrayBuffer(encrypted);
+		const ivBuffer = base64ToArrayBuffer(iv);
 
-      let decrypted = decipher.update(encryptedBuffer);
-      decrypted = Buffer.concat([decrypted, decipher.final()]);
+		const ivUint8Array = new Uint8Array(ivBuffer);
 
-      resolve(decrypted.toString());
-    } catch (error) {
-      reject(error);
-    }
-  });
+		// Decrypt the data
+		const decryptedBuffer = await crypto.subtle.decrypt(
+			{
+				name: "AES-GCM",
+				iv: ivUint8Array,
+			},
+			key,
+			encryptedBuffer,
+		);
+
+		// Return the decrypted data as string
+		return buf2str(decryptedBuffer);
+	} catch (error) {
+		console.error("Decryption error:", error);
+		throw new Error("Failed to decrypt: Invalid password or tampered data");
+	}
 };
 
-export { decrypt, deriveKey, encrypt, hashData };
+export { decrypt, encrypt, hashData };

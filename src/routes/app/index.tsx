@@ -137,8 +137,8 @@ function RouteComponent() {
 	const actionButtons = useMemo(() => {
 		if (isSelecting) {
 			return (
-				<section className="flex flex-row items-center justify-between">
-					<div className="flex flex-row space-x-2">
+				<section className="flex flex-row items-center justify-between md:justify-end gap-4">
+					<div className="flex flex-row gap-4">
 						<Button
 							disabled={selectedKeys.length === 0}
 							size="lg"
@@ -170,9 +170,9 @@ function RouteComponent() {
 		}
 
 		return (
-			<section className="grid grid-cols-3 gap-4">
+			<section className="flex flex-row items-center md:justify-end gap-4">
 				<Button
-					className="cursor-pointer col-span-1"
+					className="cursor-pointer flex-2/5 md:flex-none"
 					size="lg"
 					variant="secondary"
 					onClick={() => setManualFormModal(true)}
@@ -181,7 +181,7 @@ function RouteComponent() {
 				</Button>
 				<Button
 					onClick={() => setScanQrModal(true)}
-					className="cursor-pointer col-span-2"
+					className="cursor-pointer flex-3/5 md:flex-none"
 					size="lg"
 				>
 					Scan QR

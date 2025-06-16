@@ -2,105 +2,61 @@ import KeyCardSection from "@/components/containers/key-card-section";
 import ManualFormModal from "@/components/containers/manual-form-modal";
 import MasterPasswordModal from "@/components/containers/master-password-modal";
 import { ScanQRModal } from "@/components/containers/scanqr-modal";
+import useKeyCardData from "@/components/hooks/use-keycard-data";
+import useModals from "@/components/hooks/use-modals";
+import useSearch from "@/components/hooks/use-search";
 import ModalConfirmation from "@/components/reusables/modal-confirmation";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useSettings } from "@/contexts/settings-provider";
 import type { IKeyCard } from "@/types/key-card";
-import type { IOTPFormat } from "@/types/otp-format";
-import { loadKeyFromStorage, saveKeyToStorage } from "@/utils/storage";
 import { createFileRoute } from "@tanstack/react-router";
-import { ScanQrCode, Trash, Upload, X } from "lucide-react";
-import { useCallback, useMemo, useState } from "react";
-import { toast } from "sonner";
+import { ScanQrCode, Search, Trash, Upload, X } from "lucide-react";
+import { useCallback, useMemo } from "react";
 
 export const Route = createFileRoute("/app/")({
 	component: RouteComponent,
 });
 
 function RouteComponent() {
-	// Modal states
-	const [scanQrModal, setScanQrModal] = useState(false);
-	const [manualFormModal, setManualFormModal] = useState(false);
-	const [passwordModal, setPasswordModal] = useState(true);
-	const [deleteConfirmation, setDeleteConfirmation] = useState(false);
+	// Use custom hooks
+	const {
+		scanQrModal,
+		manualFormModal,
+		passwordModal,
+		deleteConfirmation,
+		setScanQrModal,
+		setManualFormModal,
+		setPasswordModal,
+		setDeleteConfirmation,
+	} = useModals();
 
-	// Data states
-	const [password, setPassword] = useState("");
-	const [data, setData] = useState<IKeyCard[]>([]);
+	const { data, handleSubmitPassword, addKey, deleteKeys } = useKeyCardData();
+
+	const searchKeyCard = useCallback((item: IKeyCard, query: string) => {
+		return (
+			item.label.toLowerCase().includes(query) ||
+			item.issuer.toLowerCase().includes(query) ||
+			item.secret.toLowerCase().includes(query)
+		);
+	}, []);
+
+	const {
+		searchQuery,
+		filteredItems: filteredData,
+		handleSearchChange,
+		clearSearch,
+	} = useSearch({
+		items: data,
+		searchFn: searchKeyCard,
+	});
 
 	// Settings context
 	const { isSelecting, selectedKeys, toggleSelecting } = useSettings();
 
-	/**
-	 * Saves encrypted data to local storage
-	 */
-	const handleSaveDataToStorage = useCallback(
-		(newData: IKeyCard[]) => {
-			return new Promise<void>((resolve, reject) => {
-				try {
-					saveKeyToStorage(newData, password)
-						.then(() => resolve())
-						.catch((error) => reject(error));
-				} catch (error) {
-					reject(error);
-				}
-			});
-		},
-		[password],
-	);
-
-	/**
-	 * Handles master password submission
-	 */
-	const handleSubmitPassword = useCallback((encryptedPassword: string) => {
-		return new Promise<void>((resolve, reject) => {
-			loadKeyFromStorage(encryptedPassword)
-				.then((loadedData) => {
-					setData(loadedData);
-					setPasswordModal(false);
-					setPassword(encryptedPassword);
-					toast.success("Successfully logged in");
-					resolve();
-				})
-				.catch((error) => {
-					const errorResponse = error as Error;
-					toast.error(`Failed to decrypt data: ${errorResponse.message}`);
-					reject(errorResponse);
-				});
-		});
-	}, []);
-
-	/**
-	 * Adds a new OTP key
-	 */
-	const handleAddKey = useCallback(
-		async (payload: IOTPFormat) => {
-			try {
-				const newData: IKeyCard = {
-					...payload,
-					id: crypto.randomUUID(),
-					createdAt: new Date().toISOString(),
-				};
-				const updatedData = [...data, newData];
-
-				await handleSaveDataToStorage(updatedData);
-				setData(updatedData);
-				toast.success("Key added successfully");
-			} catch (error) {
-				const errorResponse = error as Error;
-				toast.error(`Failed to add key: ${errorResponse.message}`);
-				console.error("Error adding key:", errorResponse);
-			}
-		},
-		[data, handleSaveDataToStorage],
-	);
-
-	/**
-	 * Handles manual form submission
-	 */
 	const handleSubmitManualForm = useCallback(
 		(payload: { label: string; issuer: string; secret: string }) => {
-			handleAddKey({
+			addKey({
 				label: payload.label,
 				issuer: payload.issuer,
 				secret: payload.secret,
@@ -110,31 +66,18 @@ function RouteComponent() {
 			});
 			setManualFormModal(false);
 		},
-		[handleAddKey],
+		[addKey, setManualFormModal],
 	);
 
-	/**
-	 * Delete selected keys
-	 */
 	const handleDeleteSelectedKeys = useCallback(async () => {
-		try {
-			const newData = data.filter((item) => !selectedKeys.includes(item));
-			await handleSaveDataToStorage(newData);
-			setData(newData);
+		const success = await deleteKeys(selectedKeys);
+		if (success) {
 			setDeleteConfirmation(false);
 			toggleSelecting(false);
-			toast.success("Selected keys deleted successfully");
-		} catch (error) {
-			const errorResponse = error as Error;
-			toast.error(`Failed to delete keys: ${errorResponse.message}`);
-			console.error("Error deleting keys:", errorResponse);
 		}
-	}, [data, handleSaveDataToStorage, selectedKeys, toggleSelecting]);
+	}, [deleteKeys, selectedKeys, setDeleteConfirmation, toggleSelecting]);
 
-	/**
-	 * UI for action buttons based on selection mode
-	 */
-	const actionButtons = useMemo(() => {
+	const renderActionButtons = useMemo(() => {
 		if (isSelecting) {
 			return (
 				<section className="flex flex-row items-center justify-between md:justify-end gap-4">
@@ -170,32 +113,63 @@ function RouteComponent() {
 		}
 
 		return (
-			<section className="flex flex-row items-center md:justify-end gap-4">
-				<Button
-					className="cursor-pointer flex-2/5 md:flex-none"
-					size="lg"
-					variant="secondary"
-					onClick={() => setManualFormModal(true)}
-				>
-					Manual
-				</Button>
-				<Button
-					onClick={() => setScanQrModal(true)}
-					className="cursor-pointer flex-3/5 md:flex-none"
-					size="lg"
-				>
-					Scan QR
-					<ScanQrCode />
-				</Button>
+			<section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+				<div className="relative flex items-center">
+					<Search className="absolute left-2 text-muted-foreground" size={18} />
+					<Input
+						onChange={handleSearchChange}
+						placeholder="Search keys"
+						className="pl-8 md:min-w-xs"
+						value={searchQuery}
+					/>
+					{searchQuery.length > 0 && (
+						<button
+							type="button"
+							className="absolute right-2 text-muted-foreground cursor-pointer"
+							onClick={clearSearch}
+							aria-label="Clear search"
+						>
+							<X size={16} />
+						</button>
+					)}
+				</div>
+				<div className="flex flex-row gap-4">
+					<Button
+						className="cursor-pointer flex-2/5 md:flex-none"
+						size="lg"
+						variant="secondary"
+						onClick={() => setManualFormModal(true)}
+					>
+						Manual
+					</Button>
+					<Button
+						onClick={() => setScanQrModal(true)}
+						className="cursor-pointer flex-3/5 md:flex-none"
+						size="lg"
+					>
+						Scan QR
+						<ScanQrCode />
+					</Button>
+				</div>
 			</section>
 		);
-	}, [isSelecting, selectedKeys.length, toggleSelecting]);
+	}, [
+		isSelecting,
+		selectedKeys.length,
+		toggleSelecting,
+		searchQuery,
+		handleSearchChange,
+		clearSearch,
+		setManualFormModal,
+		setScanQrModal,
+		setDeleteConfirmation,
+	]);
 
 	return (
 		<div>
 			<div className="space-y-6">
-				{actionButtons}
-				<KeyCardSection data={data} />
+				{renderActionButtons}
+				<KeyCardSection data={filteredData} />
 			</div>
 
 			{/* Modals */}
@@ -206,7 +180,7 @@ function RouteComponent() {
 			/>
 
 			<ScanQRModal
-				onSuccessScan={handleAddKey}
+				onSuccessScan={addKey}
 				isOpen={scanQrModal}
 				onClose={() => setScanQrModal(false)}
 			/>

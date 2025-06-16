@@ -15,7 +15,7 @@ function RouteComponent() {
 				</Link>
 				<SettingMenu />
 			</header>
-			<main className="container mx-auto px-6 py-2">
+			<main className="container mx-auto px-6 py-2 md:max-w-5xl">
 				<Outlet />
 			</main>
 		</SettingProvider>

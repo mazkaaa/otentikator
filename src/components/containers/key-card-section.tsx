@@ -46,7 +46,7 @@ const KeyCardSection = (props: PROPS) => {
 				{data.map((otp) => (
 					<div
 						key={otp.id}
-						className="flex flex-row items-center w-full space-x-6"
+						className="flex flex-row items-center w-full space-x-2"
 					>
 						<KeyCard data={otp} />
 						{defineCheckbox(otp)}
@@ -57,7 +57,9 @@ const KeyCardSection = (props: PROPS) => {
 	}, [data, defineCheckbox]);
 
 	return (
-		<section className="space-y-4 transition-all">{defineGridContent}</section>
+		<section className="transition-all grid grid-cols-1 md:grid-cols-2 gap-4">
+			{defineGridContent}
+		</section>
 	);
 };
 
